@@ -4,6 +4,17 @@
 
 The core idea: every focus session is a vow. You either honour it or abandon it. Both outcomes are tracked for accountability.
 
+
+**The evening grows late and the festivities peak in the mead hall.**
+Now is the moment to stand upon the table before your brothers and sisters in arms and make yourself known. Show your determination, your bravery, your character. Speak your Bēot aloud for all to hear — a binding vow set against the turning of wyrd itself.
+
+For wyrd is not merely fate that happens to you; it is fate forged by the vows you dare to make and the deeds you choose to carry through. Each focus session is a thread cast forward into the unknown. Honour your vow and you strengthen your place in the weave. Abandon it, and that too is recorded — for no oath is without consequence.
+
+Shout your Bēot.
+Carry it out with pride.
+Or fall in the attempt — and let the record stand.
+
+
 ## Features
 
 - 25-minute focus sessions tied to subjects (GoLang, Music, React, etc.)
