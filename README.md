@@ -1,6 +1,6 @@
-# Beot
+# Bēot 
 
-**Beot** (Anglo-Saxon: "a binding vow") is a terminal-based Pomodoro timer built with Go. It uses Bubble Tea for the TUI framework, Lip Gloss for styling, and MongoDB for persistence.
+**Bēot** (Anglo-Saxon: "a binding vow") is a terminal-based Pomodoro timer built with Go. It uses Bubble Tea for the TUI framework, Lip Gloss for styling, and MongoDB for persistence.
 
 The core idea: every focus session is a vow. You either honour it or abandon it. Both outcomes are tracked for accountability.
 
