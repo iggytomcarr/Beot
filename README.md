@@ -5,33 +5,33 @@
 The core idea: every focus session is a vow. You either honour it or abandon it. Both outcomes are tracked for accountability.
 
 
-The fire is high,
-the mead is spent,
-and the night has teeth.
+**The fire is high,**
+**the mead is spent,**
+**and the night has teeth.**
 
-Now is no hour for quiet men.
-Now is the time to rise,
-to stand tall beneath the roof-beams,
-to let word and will be one.
+**Now is no hour for quiet men.**
+**Now is the time to rise,**
+**to stand tall beneath the roof-beams,**
+**to let word and will be one.**
 
-I speak not of what I have done —
-I speak of what I shall do.
+**I speak not of what I have done —**
+**I speak of what I shall do.**
 
-By blade and breath,
-by bone and blood,
-I bind my honour to my word.
+**By blade and breath,**
+**by bone and blood,**
+**I bind my honour to my word.**
 
-Let the gods bear witness.
-Let the ancestors listen from the dark.
-Let wyrd itself turn its face toward me.
+**Let the gods bear witness.**
+**Let the ancestors listen from the dark.**
+**Let wyrd itself turn its face toward me.**
 
-This is my Bēot.
+**This is my Bēot.**
 
-If I fail it,
-let my name be broken.
+**If I fail it,**
+**let my name be broken.**
 
-If I keep it,
-let it live after me.
+**If I keep it,**
+**let it live after me.**
 
 
 ## Features
