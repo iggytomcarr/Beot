@@ -5,14 +5,33 @@
 The core idea: every focus session is a vow. You either honour it or abandon it. Both outcomes are tracked for accountability.
 
 
-**The evening grows late and the festivities peak in the mead hall.**
-Now is the moment to stand upon the table before your brothers and sisters in arms and make yourself known. Show your determination, your bravery, your character. Speak your Bēot aloud for all to hear — a binding vow set against the turning of wyrd itself.
+The fire is high,
+the mead is spent,
+and the night has teeth.
 
-For wyrd is not merely fate that happens to you; it is fate forged by the vows you dare to make and the deeds you choose to carry through. Each focus session is a thread cast forward into the unknown. Honour your vow and you strengthen your place in the weave. Abandon it, and that too is recorded — for no oath is without consequence.
+Now is no hour for quiet men.
+Now is the time to rise,
+to stand tall beneath the roof-beams,
+to let word and will be one.
 
-Shout your Bēot.
-Carry it out with pride.
-Or fall in the attempt — and let the record stand.
+I speak not of what I have done —
+I speak of what I shall do.
+
+By blade and breath,
+by bone and blood,
+I bind my honour to my word.
+
+Let the gods bear witness.
+Let the ancestors listen from the dark.
+Let wyrd itself turn its face toward me.
+
+This is my Bēot.
+
+If I fail it,
+let my name be broken.
+
+If I keep it,
+let it live after me.
 
 
 ## Features
