@@ -285,9 +285,20 @@ func (m TimerModel) renderConfirmation() string {
 }
 
 func (m TimerModel) renderComplete() string {
+	title := SuccessStyle.Render("Your vow is kept.")
+
+	message := NormalStyle.Render(fmt.Sprintf(
+		"You held to your word for %d minutes.\nYour honour remains unbroken.",
+		m.totalSeconds/60,
+	))
+
+	subject := StatusStyle.Render(fmt.Sprintf("Subject: %s", m.subjectName))
+
 	content := fmt.Sprintf(
-		"%s\n\n%s",
-		SuccessStyle.Render("✅ Session Complete!"),
+		"%s\n\n%s\n\n%s\n\n%s",
+		title,
+		message,
+		subject,
 		HelpStyle.Render("Press any key to continue"),
 	)
 
