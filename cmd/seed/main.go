@@ -8,9 +8,11 @@ import (
 )
 
 var seedQuotes = []struct {
-	Text   string
-	Source string
+	Text     string
+	Source   string
+	Subjects []string // Empty = general quote for all subjects
 }{
+	// General quotes (shown for all subjects)
 	{
 		Text:   "Some of the greatest innovations have come from people who only succeeded because they were too dumb to know that what they were doing was impossible.",
 		Source: "",
@@ -20,12 +22,86 @@ var seedQuotes = []struct {
 		Source: "",
 	},
 	{
-		Text:   "If you aren't dropping, you aren't learning. And if you aren't learning, you aren't a juggler.",
-		Source: "Juggler's proverb",
-	},
-	{
 		Text:   "A computer is a creative amplifier.",
 		Source: "",
+	},
+
+	// Programming quotes (GoLang, React)
+	{
+		Text:     "First, solve the problem. Then, write the code.",
+		Source:   "John Johnson",
+		Subjects: []string{"GoLang", "React"},
+	},
+	{
+		Text:     "Code is like humor. When you have to explain it, it's bad.",
+		Source:   "Cory House",
+		Subjects: []string{"GoLang", "React"},
+	},
+	{
+		Text:     "Simplicity is the soul of efficiency.",
+		Source:   "Austin Freeman",
+		Subjects: []string{"GoLang", "React"},
+	},
+	{
+		Text:     "Make it work, make it right, make it fast.",
+		Source:   "Kent Beck",
+		Subjects: []string{"GoLang", "React"},
+	},
+	{
+		Text:     "The best error message is the one that never shows up.",
+		Source:   "Thomas Fuchs",
+		Subjects: []string{"GoLang", "React"},
+	},
+
+	// Music quotes
+	{
+		Text:     "Music is the shorthand of emotion.",
+		Source:   "Leo Tolstoy",
+		Subjects: []string{"Music"},
+	},
+	{
+		Text:     "Without music, life would be a mistake.",
+		Source:   "Friedrich Nietzsche",
+		Subjects: []string{"Music"},
+	},
+	{
+		Text:     "Music expresses that which cannot be put into words.",
+		Source:   "Victor Hugo",
+		Subjects: []string{"Music"},
+	},
+	{
+		Text:     "If you aren't dropping, you aren't learning. And if you aren't learning, you aren't a juggler.",
+		Source:   "Juggler's proverb",
+		Subjects: []string{"Music"},
+	},
+	{
+		Text:     "The only way to do great work is to love what you do.",
+		Source:   "Steve Jobs",
+		Subjects: []string{"Music"},
+	},
+
+	// Reading quotes
+	{
+		Text:     "A reader lives a thousand lives before he dies. The man who never reads lives only one.",
+		Source:   "George R.R. Martin",
+		Subjects: []string{"Reading"},
+	},
+	{
+		Text:     "Reading is to the mind what exercise is to the body.",
+		Source:   "Joseph Addison",
+		Subjects: []string{"Reading"},
+	},
+
+	// Writing quotes
+	{
+		Text:     "There is nothing to writing. All you do is sit down at a typewriter and bleed.",
+		Source:   "Ernest Hemingway",
+		Subjects: []string{"Writing"},
+	},
+	{
+		Text:     "Start writing, no matter what. The water does not flow until the faucet is turned on.",
+		Source:   "Louis L'Amour",
+		Subjects: []string{"Writing"},
 	},
 }
 
@@ -144,12 +220,16 @@ func main() {
 	fmt.Println("Seeding quotes...")
 
 	for _, q := range seedQuotes {
-		quote, err := db.AddQuote(q.Text, q.Source)
+		quote, err := db.AddQuoteWithSubjects(q.Text, q.Source, q.Subjects)
 		if err != nil {
 			log.Printf("Failed to add quote: %v", err)
 			continue
 		}
-		fmt.Printf("  Added: %s...\n", truncate(quote.Text, 50))
+		subjectInfo := "general"
+		if len(q.Subjects) > 0 {
+			subjectInfo = fmt.Sprintf("%v", q.Subjects)
+		}
+		fmt.Printf("  Added [%s]: %s...\n", subjectInfo, truncate(quote.Text, 40))
 	}
 
 	count, _ := db.CountQuotes()

@@ -13,6 +13,7 @@ type Quote struct {
 	ID        primitive.ObjectID `bson:"_id,omitempty"`
 	Text      string             `bson:"text"`
 	Source    string             `bson:"source,omitempty"`
+	Subjects  []string           `bson:"subjects,omitempty"` // Empty = general (shown for all)
 	CreatedAt time.Time          `bson:"created_at"`
 }
 
@@ -40,10 +41,32 @@ func GetAllQuotes() ([]Quote, error) {
 
 // GetRandomQuote returns a random quote using MongoDB aggregation
 func GetRandomQuote() (*Quote, error) {
+	return GetRandomQuoteForSubject("")
+}
+
+// GetRandomQuoteForSubject returns a random quote for a specific subject
+// It includes quotes tagged with that subject OR general quotes (no subjects)
+func GetRandomQuoteForSubject(subjectName string) (*Quote, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
+	// Build filter: quotes for this subject OR general quotes (empty/null subjects)
+	var filter bson.M
+	if subjectName != "" {
+		filter = bson.M{
+			"$or": []bson.M{
+				{"subjects": subjectName},
+				{"subjects": bson.M{"$exists": false}},
+				{"subjects": bson.M{"$size": 0}},
+				{"subjects": nil},
+			},
+		}
+	} else {
+		filter = bson.M{}
+	}
+
 	pipeline := mongo.Pipeline{
+		{{Key: "$match", Value: filter}},
 		{{Key: "$sample", Value: bson.D{{Key: "size", Value: 1}}}},
 	}
 
@@ -64,14 +87,20 @@ func GetRandomQuote() (*Quote, error) {
 	return &quotes[0], nil
 }
 
-// AddQuote inserts a new quote
+// AddQuote inserts a new quote (general, shown for all subjects)
 func AddQuote(text, source string) (*Quote, error) {
+	return AddQuoteWithSubjects(text, source, nil)
+}
+
+// AddQuoteWithSubjects inserts a new quote with subject tags
+func AddQuoteWithSubjects(text, source string, subjects []string) (*Quote, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	quote := Quote{
 		Text:      text,
 		Source:    source,
+		Subjects:  subjects,
 		CreatedAt: time.Now(),
 	}
 

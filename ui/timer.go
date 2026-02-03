@@ -96,7 +96,7 @@ func quoteTickCmd() tea.Cmd {
 }
 
 func (m *TimerModel) loadRandomQuote() {
-	quote, err := db.GetRandomQuote()
+	quote, err := db.GetRandomQuoteForSubject(m.subjectName)
 	if err != nil || quote == nil {
 		m.currentQuote = "Focus on your task."
 		m.currentSource = ""
