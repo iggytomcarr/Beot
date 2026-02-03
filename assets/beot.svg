@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <!-- Background circle with Anglo-Saxon gold -->
+  <circle cx="128" cy="128" r="120" fill="#B8860B"/>
+  <circle cx="128" cy="128" r="110" fill="#1a1a2e"/>
+
+  <!-- Stylized "B" for Beot with knotwork inspiration -->
+  <path d="M80 60 L80 196 L130 196
+           Q170 196 170 166 Q170 140 140 135
+           Q165 130 165 105 Q165 60 125 60 Z
+           M100 80 L120 80 Q145 80 145 105 Q145 120 120 120 L100 120 Z
+           M100 140 L125 140 Q150 140 150 166 Q150 176 125 176 L100 176 Z"
+        fill="#DAA520" stroke="#B8860B" stroke-width="2"/>
+
+  <!-- Timer arc suggesting Pomodoro -->
+  <path d="M128 30 A98 98 0 1 1 30 128"
+        fill="none" stroke="#DAA520" stroke-width="8" stroke-linecap="round"/>
+
+  <!-- Small decorative dots (Anglo-Saxon style) -->
+  <circle cx="128" cy="30" r="6" fill="#DAA520"/>
+  <circle cx="30" cy="128" r="6" fill="#DAA520"/>
+</svg>

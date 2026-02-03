@@ -1,0 +1,149 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    name: Build Windows Binary
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: Build Windows AMD64
+        env:
+          GOOS: windows
+          GOARCH: amd64
+          CGO_ENABLED: 0
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          COMMIT=${GITHUB_SHA::7}
+          DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          go build -ldflags "-s -w -X main.Version=$VERSION -X main.CommitSHA=$COMMIT -X main.BuildDate=$DATE" -o dist/beot.exe
+
+      - name: Upload Windows binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: beot-windows
+          path: dist/beot.exe
+
+  build-installer:
+    name: Build Windows Installer
+    runs-on: windows-latest
+    needs: build-windows
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download Windows binary
+        uses: actions/download-artifact@v4
+        with:
+          name: beot-windows
+          path: dist
+
+      - name: Create icon from SVG
+        shell: pwsh
+        run: |
+          # For now, create a placeholder ICO or skip if not available
+          # In production, you'd convert the SVG to ICO
+          # The installer will work without an icon, it just won't have a custom one
+          if (-not (Test-Path "assets/beot.ico")) {
+            Write-Host "Note: beot.ico not found, installer will use default icon"
+          }
+
+      - name: Build installer with Inno Setup
+        shell: cmd
+        run: |
+          set VERSION=%GITHUB_REF:refs/tags/v=%
+          "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /DMyAppVersion=%VERSION% installer\beot.iss
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: beot-installer
+          path: dist/BeotSetup-*.exe
+
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: [build-windows, build-installer]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: Download Windows binary
+        uses: actions/download-artifact@v4
+        with:
+          name: beot-windows
+          path: dist-windows
+
+      - name: Download installer
+        uses: actions/download-artifact@v4
+        with:
+          name: beot-installer
+          path: dist-installer
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          distribution: goreleaser
+          version: latest
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get version
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Upload installer to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist-installer/BeotSetup-*.exe
+          append_body: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  checksums:
+    name: Generate Checksums
+    runs-on: ubuntu-latest
+    needs: [build-windows, build-installer]
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Generate SHA256 checksums
+        run: |
+          cd artifacts
+          find . -type f -name "*.exe" -exec sha256sum {} \; > ../sha256sums.txt
+          cat ../sha256sums.txt
+
+      - name: Upload checksums to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: sha256sums.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,89 @@
+# GoReleaser configuration for Beot
+# https://goreleaser.com
+
+version: 2
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: beot-windows
+    main: ./main.go
+    binary: beot
+    goos:
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+      - -X main.Version={{.Version}}
+      - -X main.CommitSHA={{.ShortCommit}}
+      - -X main.BuildDate={{.Date}}
+    env:
+      - CGO_ENABLED=0
+
+  - id: beot-other
+    main: ./main.go
+    binary: beot
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+      - -X main.Version={{.Version}}
+      - -X main.CommitSHA={{.ShortCommit}}
+      - -X main.BuildDate={{.Date}}
+    env:
+      - CGO_ENABLED=0
+
+archives:
+  - id: windows-zip
+    builds:
+      - beot-windows
+    format: zip
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+
+  - id: unix-tar
+    builds:
+      - beot-other
+    format: tar.gz
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+
+checksum:
+  name_template: 'checksums.txt'
+
+snapshot:
+  version_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^chore:'
+      - Merge pull request
+      - Merge branch
+
+release:
+  github:
+    owner: "{{ .Env.GITHUB_REPOSITORY_OWNER }}"
+    name: beot
+  draft: false
+  prerelease: auto
+  name_template: "Beot v{{.Version}}"
+  header: |
+    ## Beot v{{.Version}}
+
+    Anglo-Saxon themed Pomodoro timer for focused work sessions.
+  footer: |
+    ---
+    **Full Changelog**: https://github.com/{{ .Env.GITHUB_REPOSITORY_OWNER }}/beot/compare/{{ .PreviousTag }}...{{ .Tag }}
+
+    ### Windows Installation
+    Download `BeotSetup-{{.Version}}.exe` for the recommended installation experience with PATH integration.
