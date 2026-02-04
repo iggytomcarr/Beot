@@ -1,8 +1,10 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
+	"os"
 
 	"Beot/db"
 )
@@ -211,54 +213,85 @@ var seedPoems = []struct {
 }
 
 func main() {
+	// Check for --clean flag
+	cleanMode := false
+	for _, arg := range os.Args[1:] {
+		if arg == "--clean" {
+			cleanMode = true
+		}
+	}
+
 	fmt.Println("Connecting to MongoDB...")
 	if err := db.Connect(); err != nil {
 		log.Fatalf("Failed to connect: %v", err)
 	}
 	defer db.Disconnect()
 
+	if cleanMode {
+		fmt.Println("Cleaning existing data...")
+		db.Database.Collection("quotes").Drop(context.Background())
+		db.Database.Collection("subjects").Drop(context.Background())
+		db.Database.Collection("poems").Drop(context.Background())
+		fmt.Println("Collections dropped.")
+	}
+
 	fmt.Println("Seeding quotes...")
 
+	quotesAdded := 0
 	for _, q := range seedQuotes {
-		quote, err := db.AddQuoteWithSubjects(q.Text, q.Source, q.Subjects)
+		_, added, err := db.AddQuoteIfNotExists(q.Text, q.Source, q.Subjects)
 		if err != nil {
 			log.Printf("Failed to add quote: %v", err)
 			continue
 		}
-		subjectInfo := "general"
-		if len(q.Subjects) > 0 {
-			subjectInfo = fmt.Sprintf("%v", q.Subjects)
+		if added {
+			quotesAdded++
+			subjectInfo := "general"
+			if len(q.Subjects) > 0 {
+				subjectInfo = fmt.Sprintf("%v", q.Subjects)
+			}
+			fmt.Printf("  Added [%s]: %s...\n", subjectInfo, truncate(q.Text, 40))
 		}
-		fmt.Printf("  Added [%s]: %s...\n", subjectInfo, truncate(quote.Text, 40))
 	}
+	fmt.Printf("Added %d new quotes\n", quotesAdded)
 
 	count, _ := db.CountQuotes()
 	fmt.Printf("Total quotes in database: %d\n", count)
 
 	fmt.Println("\nSeeding subjects...")
 
+	subjectsAdded := 0
 	for _, s := range seedSubjects {
-		subject, err := db.AddSubject(s.Name, s.Icon)
+		subject, added, err := db.AddSubjectIfNotExists(s.Name, s.Icon)
 		if err != nil {
 			log.Printf("Failed to add subject: %v", err)
 			continue
 		}
-		fmt.Printf("  Added: %s %s\n", subject.Icon, subject.Name)
+		if added {
+			subjectsAdded++
+			fmt.Printf("  Added: %s %s\n", subject.Icon, subject.Name)
+		}
 	}
+	fmt.Printf("Added %d new subjects\n", subjectsAdded)
 
 	subjects, _ := db.GetAllSubjects()
 	fmt.Printf("Total subjects in database: %d\n", len(subjects))
 
 	fmt.Println("\nSeeding poems...")
 
+	poemsAdded := 0
 	for _, p := range seedPoems {
-		poem, err := db.AddPoem(p.OldEnglish, p.ModernEnglish, p.Source, p.LineRef)
+		_, added, err := db.AddPoemIfNotExists(p.OldEnglish, p.ModernEnglish, p.Source, p.LineRef)
 		if err != nil {
 			log.Printf("Failed to add poem: %v", err)
 			continue
 		}
-		fmt.Printf("  Added: %s (%s)\n", poem.Source, poem.LineRef)
+		if added {
+			poemsAdded++
+			fmt.Printf("  Added: %s (%s)\n", p.Source, p.LineRef)
+		}
 	}
+	fmt.Printf("Added %d new poems\n", poemsAdded)
 
 	poemCount, _ := db.CountPoems()
 	fmt.Printf("\nDone! Total poems in database: %d\n", poemCount)

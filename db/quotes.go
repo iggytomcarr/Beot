@@ -113,6 +113,38 @@ func AddQuoteWithSubjects(text, source string, subjects []string) (*Quote, error
 	return &quote, nil
 }
 
+// AddQuoteIfNotExists creates a quote only if one with the same text doesn't exist
+func AddQuoteIfNotExists(text, source string, subjects []string) (*Quote, bool, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	// Check if quote already exists
+	var existing Quote
+	err := QuotesCollection().FindOne(ctx, bson.M{"text": text}).Decode(&existing)
+	if err == nil {
+		return &existing, false, nil
+	}
+	if err != mongo.ErrNoDocuments {
+		return nil, false, err
+	}
+
+	// Create new quote
+	quote := Quote{
+		Text:      text,
+		Source:    source,
+		Subjects:  subjects,
+		CreatedAt: time.Now(),
+	}
+
+	result, err := QuotesCollection().InsertOne(ctx, quote)
+	if err != nil {
+		return nil, false, err
+	}
+
+	quote.ID = result.InsertedID.(primitive.ObjectID)
+	return &quote, true, nil
+}
+
 // DeleteQuote removes a quote by ID
 func DeleteQuote(id primitive.ObjectID) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)

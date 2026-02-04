@@ -71,6 +71,38 @@ func AddSubject(name, icon string) (*Subject, error) {
 	return &subject, nil
 }
 
+// AddSubjectIfNotExists creates a subject only if one with the same name doesn't exist
+func AddSubjectIfNotExists(name, icon string) (*Subject, bool, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	// Check if subject already exists
+	var existing Subject
+	err := SubjectsCollection().FindOne(ctx, bson.M{"name": name}).Decode(&existing)
+	if err == nil {
+		// Already exists
+		return &existing, false, nil
+	}
+	if err != mongo.ErrNoDocuments {
+		return nil, false, err
+	}
+
+	// Create new subject
+	subject := Subject{
+		Name:      name,
+		Icon:      icon,
+		CreatedAt: time.Now(),
+	}
+
+	result, err := SubjectsCollection().InsertOne(ctx, subject)
+	if err != nil {
+		return nil, false, err
+	}
+
+	subject.ID = result.InsertedID.(primitive.ObjectID)
+	return &subject, true, nil
+}
+
 // DeleteSubject removes a subject by ID
 func DeleteSubject(id primitive.ObjectID) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)

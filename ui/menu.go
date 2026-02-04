@@ -22,6 +22,9 @@ type menuItem struct {
 	text string
 }
 
+// Version is set from main.go
+var Version = "dev"
+
 // MenuModel handles the main menu
 type MenuModel struct {
 	choices     []menuItem
@@ -103,14 +106,9 @@ func (m MenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m MenuModel) View() string {
-	// Title
+	// Title and version
 	title := TitleStyle.Render("Bēot")
-
-	// Streak display
-	streakText := HelpStyle.Render("Start a session to begin your streak!")
-	if m.streak > 0 {
-		streakText = SuccessStyle.Render(fmt.Sprintf("⚡ %d day streak", m.streak))
-	}
+	version := VersionStyle.Render("v" + Version)
 
 	// Menu items
 	var items string
@@ -127,10 +125,16 @@ func (m MenuModel) View() string {
 		items += fmt.Sprintf("%s%s%s\n", cursor, icon, style.Render(choice.text))
 	}
 
+	// Streak display (moved to bottom)
+	streakText := HelpStyle.Render("Start a session to begin your streak!")
+	if m.streak > 0 {
+		streakText = StreakStyle.Render(fmt.Sprintf("⚡ %d day streak", m.streak))
+	}
+
 	// Help
 	help := HelpStyle.Render("↑/↓ navigate • enter select • q quit")
 
-	return fmt.Sprintf("\n  %s\n  %s\n\n%s\n  %s\n", title, streakText, items, help)
+	return fmt.Sprintf("\n  %s\n  %s\n\n%s\n  %s\n\n  %s\n", title, version, items, streakText, help)
 }
 
 // MenuSelectionMsg is sent when a menu item is selected

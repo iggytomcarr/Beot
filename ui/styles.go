@@ -6,6 +6,7 @@ var (
 	Primary   = lipgloss.Color("#E6DCC7") // Parchment
 	Secondary = lipgloss.Color("#A9A393") // Ash
 	Muted     = lipgloss.Color("#7C776C") // Muted/Helper
+	Gold      = lipgloss.Color("#DAA520") // Anglo-Saxon Gold
 	Success   = lipgloss.Color("82")      // Green
 	Warning   = lipgloss.Color("214")     // Orange
 	Danger    = lipgloss.Color("196")     // Red
@@ -37,6 +38,13 @@ var (
 	ErrorStyle = lipgloss.NewStyle().
 			Foreground(Danger).
 			Bold(true)
+
+	StreakStyle = lipgloss.NewStyle().
+			Foreground(Gold).
+			Bold(true)
+
+	VersionStyle = lipgloss.NewStyle().
+			Foreground(Muted)
 
 	WarningStyle = lipgloss.NewStyle().
 			Foreground(Warning)

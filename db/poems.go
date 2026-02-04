@@ -88,6 +88,39 @@ func AddPoem(oldEnglish, modernEnglish, source, lineRef string) (*Poem, error) {
 	return &poem, nil
 }
 
+// AddPoemIfNotExists creates a poem only if one with the same source and lineRef doesn't exist
+func AddPoemIfNotExists(oldEnglish, modernEnglish, source, lineRef string) (*Poem, bool, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	// Check if poem already exists
+	var existing Poem
+	err := PoemsCollection().FindOne(ctx, bson.M{"source": source, "line_ref": lineRef}).Decode(&existing)
+	if err == nil {
+		return &existing, false, nil
+	}
+	if err != mongo.ErrNoDocuments {
+		return nil, false, err
+	}
+
+	// Create new poem
+	poem := Poem{
+		OldEnglish:    oldEnglish,
+		ModernEnglish: modernEnglish,
+		Source:        source,
+		LineRef:       lineRef,
+		CreatedAt:     time.Now(),
+	}
+
+	result, err := PoemsCollection().InsertOne(ctx, poem)
+	if err != nil {
+		return nil, false, err
+	}
+
+	poem.ID = result.InsertedID.(primitive.ObjectID)
+	return &poem, true, nil
+}
+
 // DeletePoem removes a poem by ID
 func DeletePoem(id primitive.ObjectID) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)

@@ -12,7 +12,7 @@ import (
 
 // Version info - set via ldflags at build time
 var (
-	Version   = "dev"
+	Version   = "0.1"
 	CommitSHA = "unknown"
 	BuildDate = "unknown"
 )
@@ -23,6 +23,9 @@ func main() {
 		fmt.Printf("Beot %s (commit: %s, built: %s)\n", Version, CommitSHA, BuildDate)
 		return
 	}
+
+	// Set version for UI
+	ui.Version = Version
 
 	// Connect to MongoDB
 	if err := db.Connect(); err != nil {
