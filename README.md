@@ -135,7 +135,7 @@ Then edit `.env` with your MongoDB connection string:
 BEOT_MONGODB_URI=mongodb://localhost:27017
 
 # For MongoDB Atlas:
-BEOT_MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/?retryWrites=true&w=majority
+BEOT_MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/?retryWrites=true&w=majority
 ```
 
 The `.env` file is gitignored and will not be committed.
