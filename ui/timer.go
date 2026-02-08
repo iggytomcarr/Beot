@@ -11,7 +11,9 @@ import (
 )
 
 // Timer messages
-type tickMsg time.Time
+type tickMsg struct {
+	id int
+}
 type quoteTickMsg time.Time
 
 // TimerCompleteMsg is sent when the timer finishes
@@ -36,6 +38,7 @@ type TimerModel struct {
 	totalSeconds     int
 	remainingSeconds int
 	running          bool
+	tickID           int // incremented to invalidate stale tick chains
 	progress         progress.Model
 	confirming       bool
 	currentQuote     string
@@ -83,9 +86,9 @@ func NewTimerModelWithMode(minutes int, subjectID, subjectName string, mode Disp
 	return m
 }
 
-func tickCmd() tea.Cmd {
+func tickCmd(id int) tea.Cmd {
 	return tea.Tick(time.Second, func(t time.Time) tea.Msg {
-		return tickMsg(t)
+		return tickMsg{id: id}
 	})
 }
 
@@ -131,7 +134,7 @@ func (m *TimerModel) loadRandomContent() {
 }
 
 func (m TimerModel) Init() tea.Cmd {
-	return tea.Batch(tickCmd(), quoteTickCmd())
+	return tea.Batch(tickCmd(m.tickID), quoteTickCmd())
 }
 
 func (m TimerModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -166,7 +169,8 @@ func (m TimerModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "n", "esc":
 				m.confirming = false
 				m.running = true
-				return m, tickCmd()
+				m.tickID++
+				return m, tickCmd(m.tickID)
 			}
 			return m, nil
 		}
@@ -181,16 +185,21 @@ func (m TimerModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case " ":
 			m.running = !m.running
 			if m.running {
-				return m, tickCmd()
+				m.tickID++
+				return m, tickCmd(m.tickID)
 			}
 			return m, nil
 		case "r":
 			m.remainingSeconds = m.totalSeconds
 			m.running = true
-			return m, tickCmd()
+			m.tickID++
+			return m, tickCmd(m.tickID)
 		}
 
 	case tickMsg:
+		if msg.id != m.tickID {
+			return m, nil // stale tick from a previous chain, ignore
+		}
 		if m.running && m.remainingSeconds > 0 {
 			m.remainingSeconds--
 			if m.remainingSeconds <= 0 {
@@ -206,7 +215,7 @@ func (m TimerModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					}
 				}
 			}
-			return m, tickCmd()
+			return m, tickCmd(m.tickID)
 		}
 
 	case quoteTickMsg:
