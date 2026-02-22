@@ -106,8 +106,8 @@ func (m MenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m MenuModel) View() string {
-	// Title and version
-	title := TitleStyle.Render("Bēot")
+	// Title banner and version
+	title := RenderBanner()
 	version := VersionStyle.Render("v" + Version)
 
 	// Menu items
@@ -134,7 +134,7 @@ func (m MenuModel) View() string {
 	// Help
 	help := HelpStyle.Render("↑/↓ navigate • enter select • q quit")
 
-	return fmt.Sprintf("\n  %s\n  %s\n\n%s\n  %s\n\n  %s\n", title, version, items, streakText, help)
+	return fmt.Sprintf("\n%s\n  %s\n\n%s\n  %s\n\n  %s\n", title, version, items, streakText, help)
 }
 
 // MenuSelectionMsg is sent when a menu item is selected

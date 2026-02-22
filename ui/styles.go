@@ -1,6 +1,11 @@
 package ui
 
-import "github.com/charmbracelet/lipgloss"
+import (
+	"fmt"
+	"strings"
+
+	"github.com/charmbracelet/lipgloss"
+)
 
 var (
 	Primary   = lipgloss.Color("#E6DCC7") // Parchment
@@ -92,9 +97,79 @@ var ModernEnglishStyle = lipgloss.NewStyle().
 	Width(70).
 	MarginLeft(4)
 
-// RenderHeader renders just the Bēot title
+// RenderHeader renders just the Bēot title (compact, for timer etc.)
 func RenderHeader() string {
 	return TitleStyle.Render("Bēot")
+}
+
+// bannerLines contains the ASCII art for bēot (lowercase) with macron above ē
+var bannerLines = []string{
+	"           ▄▄▄▄",
+	" ██                           ██",
+	" █████▄    ▄██▄     ▄██▄    ██████",
+	" ██  ██   ██  ██   ██  ██     ██",
+	" ██  ██   ██████   ██  ██     ██",
+	" ██  ██   ██       ██  ██     ██",
+	" █████▀    ▀██▀     ▀██▀     ▀██",
+}
+
+type rgb struct{ r, g, b uint8 }
+
+var bannerGradient = []rgb{
+	{0x7E, 0xB8, 0xDA}, // Steel blue
+	{0x9B, 0x7E, 0xC8}, // Amethyst
+	{0xDA, 0xA5, 0x20}, // Anglo-Saxon gold
+}
+
+func lerpRGB(a, b rgb, t float64) rgb {
+	return rgb{
+		r: uint8(float64(a.r) + t*(float64(b.r)-float64(a.r))),
+		g: uint8(float64(a.g) + t*(float64(b.g)-float64(a.g))),
+		b: uint8(float64(a.b) + t*(float64(b.b)-float64(a.b))),
+	}
+}
+
+func gradientAt(pos, total int) lipgloss.Color {
+	if total <= 1 {
+		return lipgloss.Color("#daa520")
+	}
+	t := float64(pos) / float64(total-1)
+
+	segs := len(bannerGradient) - 1
+	seg := int(t * float64(segs))
+	if seg >= segs {
+		seg = segs - 1
+	}
+	lt := t*float64(segs) - float64(seg)
+
+	c := lerpRGB(bannerGradient[seg], bannerGradient[seg+1], lt)
+	return lipgloss.Color(fmt.Sprintf("#%02x%02x%02x", c.r, c.g, c.b))
+}
+
+// RenderBanner renders the large ASCII art BĒOT title with gradient
+func RenderBanner() string {
+	maxW := 0
+	for _, line := range bannerLines {
+		if w := len([]rune(line)); w > maxW {
+			maxW = w
+		}
+	}
+
+	var b strings.Builder
+	for i, line := range bannerLines {
+		for j, ch := range []rune(line) {
+			if ch == ' ' {
+				b.WriteRune(' ')
+			} else {
+				style := lipgloss.NewStyle().Foreground(gradientAt(j, maxW)).Bold(true)
+				b.WriteString(style.Render(string(ch)))
+			}
+		}
+		if i < len(bannerLines)-1 {
+			b.WriteRune('\n')
+		}
+	}
+	return b.String()
 }
 
 // RenderQuote renders a quote with optional source
